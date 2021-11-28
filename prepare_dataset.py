@@ -1,4 +1,4 @@
-from utils import read_file, dirs, files, basename, create_dir, join, join_and_create_dir, cp, write_file, group_buckets, stem
+from helpers import read_file, dirs, files, basename, create_dir, join, join_and_create_dir, cp, write_file, group_buckets, stem
 import cv2
 import numpy as np
 
@@ -194,9 +194,9 @@ def parse_web_logos_labels(web_logo_path):
 
 
 def format_web_logos(data, web_logo_path, images_dir, labels_dir, labels):
-    lines = []
-
     for item in data:
+        lines = []
+
         w = item["width"]
         h = item["height"]
 
@@ -237,10 +237,7 @@ def format_web_logos(data, web_logo_path, images_dir, labels_dir, labels):
 
 
 
-def prepare_web_logos(union_labels, web_logo_data, dataset_path, web_logo_path, train_proportion):
-
-    # make sure we handle cases where multiple labels exist per image
-
+def prepare_web_logos(union_labels, web_logo_data, dataset_path, web_logo_path, train_proportion): 
     train, val = proportion(web_logo_data, train_proportion)
     # split the dataset into train and validation sets
 
@@ -263,18 +260,22 @@ def main():
     web_logo_path = "./Evaluation_Dataset"
     web_logo_data, web_logo_labels = parse_web_logos_labels(web_logo_path)
 
-    intersection = list(set(flickr_labels) & set(web_logo_labels))
-    print(intersection)
+    intersect_labels = list(set(flickr_labels) & set(web_logo_labels))
+    intersect_labels = sorted(intersect_labels)
+    print(intersect_labels)
 
     # were interested in union of both dataset labels    
     union_labels = set.union(set(flickr_labels), set(web_logo_labels))
 
+    # filter out only aviable classes
+    flickr_data = [x for x in flickr_data if x["label"] in intersect_labels]
+    web_logo_data = [x for x in web_logo_data if x["label"] in intersect_labels]
 
     train_proportion = 0.7
-    # prepare_flickr(union_labels, flickr_data, dataset_path, flickr_path, train_proportion)
+    prepare_flickr(intersect_labels, flickr_data, dataset_path, flickr_path, train_proportion) # 566
 
 
-    prepare_web_logos(union_labels, web_logo_data, dataset_path, web_logo_path, train_proportion)
+    prepare_web_logos(intersect_labels, web_logo_data, dataset_path, web_logo_path, train_proportion) # 5077
 
 
 if __name__ == "__main__":

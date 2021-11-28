@@ -79,3 +79,8 @@ def group_buckets(items, key, value=None):
             v = value(x)
             buckets[k].append(v)
     return buckets
+
+
+def chunks(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
